@@ -1,4 +1,6 @@
 from SuffixArrayDC3 import SuffixArray
+import pickle
+
 '''FM Index'''
 class FMINDEX:
 	def __init__(self):
@@ -10,6 +12,75 @@ class FMINDEX:
 		self.F = {}
 		self.SYMBOLS = []
 		self.EOS_POS = -1
+		self.LEN = -1
+
+	def initialize(self,fmIndex_data):
+		self.SA = 	fmIndex_data.SA
+		self.BWT = fmIndex_data.BWT
+		self.C = fmIndex_data.C
+		self.EP = fmIndex_data.EP
+		self.OCC = fmIndex_data.OCC
+		self.F = fmIndex_data.F 
+		self.SYMBOLS = fmIndex_data.SYMBOLS
+		self.EOS_POS = fmIndex_data.EOS_POS
+		self.LEN = fmIndex_data.LEN
+
+
+	def buildFMIndex(self,SEQ):
+		self.LEN = len(SEQ)
+		self.buildSuffixArray(SEQ)
+		self.buildBWT(SEQ)
+		self.buildCountTable()
+		self.buildOccuranceTable()
+
+	#pickle file format to save	
+	def saveFMIndex(self,index_file):
+		with open(index_file,"wb") as output:
+			pickle.dump(self,output,pickle.HIGHEST_PROTOCOL)
+
+	@staticmethod		
+	def loadFMIndex(index_file)	:
+		fmIndex_data = None
+		with open(index_file,"rb") as input:
+			fmIndex_data = pickle.load(input)
+		return fmIndex_data
+
+	'''
+	file in fastq format expected
+	@r1.1|NC_022760.1-632710
+	GTGGAACACGCCGGCAAGAT
+	+ 
+	!!!!!!!!!!!!!!!!!!!!
+	'''	
+	@staticmethod	
+	def fetchReads(read_file):
+		print("read file", read_file)
+		reads = []
+		with open(read_file,"r") as f:
+			lines = f.readlines()
+			for i in range(1,len(lines)+1):
+				if i%4==2:
+					read_id ="{0}_{1}".format(read_file ,(i//4 + 1))
+					read_seq = lines[i-1].strip()
+					reads.append((read_id,read_seq))
+		return reads
+
+
+
+
+	'''
+	>gi|31563518|ref|NP_852610.1| microtubule-associated proteins 1A/1B light chain 3A isoform b [Homo sapiens]
+	MKMRFFSSPCGKAAVDPADRCKEVQQIRDQHPSKIPVIIERYKGEKQLPVLDKTKFLVPDHVNMSELVKIIRRRLQLNPTQAFFLLVNQHSMVSVSTPIADIYEQEKDEDGFLYMVYASQETFGFIRENE
+	'''	
+	@staticmethod
+	def readSequence(genome_file):
+		SEQ = ''
+		with open(genome_file,"r") as f:
+			lines = f.readlines()
+			for l in lines:
+				if l[0] !=">":
+					SEQ = SEQ + l.strip()
+		return SEQ
 
 	#BWT = characters just to the left of the suffixes in the suffix array
 	def buildBWT(self,SEQ):
@@ -94,6 +165,20 @@ class FMINDEX:
 		return resArray
 
 
+def main():
+	import sys
+	genome_file = sys.argv[1]
+	fmIndex = FMINDEX()
+	SEQ = FMINDEX.readSequence(genome_file)
+	fmIndex.buildFMIndex(SEQ)
+
+	pattern = 'GTGT'
+
+
+
+if __name__ == "__main__":main()
+
+'''
 #SEQ = 'yabbadabbado$'	
 SEQ = 'TACCAAATCTCCTTAGTGTAAGTTCAGACCAATTCGTACTTCGTTCAGAACTCACATTTTAACAACAGAGGACACATGCCCTACCTCCATGATCTACTGACGTCCCTGAGGCTGCAATACATGTAACGAGGCAGTATCCGCGGTAAGTCCTAGTGCAATGGCGGTTTTTTACCCTCGTCCTGGAGAAGAGGGGACGCCGGTGCAGTCATCACTAATGTGGAAATTGGGAGGACTCTTGGCCCTCCGCCTTTAGGCGGTGCTTACTCTTTCATAAAGGGGCTGTTAGTTATGGCCTGCGAGGATTCAAAAAGGTGAGCGAACTCGGCCGATCCGGAGAGACGGGCTTCAAAGCTGCCTGACGACGGTTGCGGGTCCGTATCAAAATCCTCCCAATAAGCCCCCGTGACCGTTGGTTGAACAGCCCAGGACGGGCCGACCAGAAGCCCGATTATATCGCTTAACGGCTCTTGGGCCGGGGTGCGTTACCTTGCAGGAATCGAGGCCGTCCGTTAATTCCTCTTGCATTCATATCGCGTATTTTTGTCTCTTTACCCGCTTACTTGGATAAGGATGACATAGCTTCTTACCGGAGCGCCTCCGTACACGGTACGATCGCACGCCCCGTGAGATCAATACGTATACCAGGTGTCCTGTGAGCAGCGAAAGCCTAAACGGGAAATACGCCGCCAAAAGTCGGTGTGAATACGAGTCGTAGCAAATTTGGTCTGGCTATGATCTAGATATTCCAGGCGGTACGTCTGCTCTGGTCTGCCTCTAGTGGCTCGTTAGATAGTCTAGCCGCTGGTAAACACTCCATGACCTCGGCTCTCCATTGATGCTACGGCGATTCTTGGAGAGCCAGCAGCGACTGCAAATGTGAGATCAGAGTAATATTAGCAAGCGATAAGTCCCTAACTGGTTGTGGCCTTTTGTAGAGTGAACTTCATAACATATGCTGTCTCAGGCACGTGGATGGTTTGGACAAATCAGATTCAAGTCT$'
 pattern = 'GTGT'
@@ -105,4 +190,5 @@ fmIndex.buildOccuranceTable()
 resArray = fmIndex.searchPattern(pattern)
 for i in resArray:
 	print("suffix matching " + pattern + " in " + SEQ[i:])
+'''
 
