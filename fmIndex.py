@@ -1,7 +1,10 @@
 from SuffixArrayDC3 import SuffixArray
+from genomeSequenceReader import GenomeSequenceReader
 import pickle
 
-'''FM Index'''
+'''FM Index
+author: nabin maharjan
+'''
 class FMINDEX:
 	def __init__(self):
 		self.SA = [] #Suffix Array
@@ -43,7 +46,7 @@ class FMINDEX:
 		fmIndex_data = None
 		with open(index_file,"rb") as input:
 			fmIndex_data = pickle.load(input)
-		return fmIndex_data
+		self.initialize(fmIndex_data)
 
 
 	#BWT = characters just to the left of the suffixes in the suffix array
@@ -123,11 +126,59 @@ class FMINDEX:
 		sp,ep = self.searchByFMIndex(pattern)
 		resArray = []
 		numberOfPatternOccurrences = ep - sp + 1 # this is 0 if pattern is not found in SEQ
-		print("sp = {0}, ep = {1} ,numberOfPatternOccurrences: {2}".format(sp,ep,numberOfPatternOccurrences))
+		#print("sp = {0}, ep = {1} ,numberOfPatternOccurrences: {2}".format(sp,ep,numberOfPatternOccurrences))
 		for i in range(numberOfPatternOccurrences):
 			resArray.append(self.SA[sp+i])
 		return resArray
 
+	def performSingleReadSearch(self,reads,SEQ,gen_loc,GEN_DEL,readOut_file):
+		readOut_file = readOut_file + "_singleReadSearch.txt"
+		with open(readOut_file,"w") as f:
+			for read_tuple in reads:
+				read_id,read,read_accuracy,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL)
+				if locations == "":
+					continue
+				out_line = "{0}|{1}|read_accuracy= {2:.2f}\n".format(read_id,read,read_accuracy)
+				f.write(out_line)
+				f.write(locations + "\n")
+
+	def performPairEndSearch(self,pairedReads,SEQ,gen_loc,GEN_DEL,readOut_file):
+		readOut_file = readOut_file + "_pairedEndReadSearch.txt"
+		with open(readOut_file,"w") as f:
+			for read1_tuple,read2_tuple in reads:
+				read1_id = read1_tuple[0]
+				read1 = read1_tuple[1]
+
+
+	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL):
+		read_id,read = read_tuple[0],read_tuple[1]
+		#print("read",read)
+		read_results = self.searchPattern(read)
+
+		#check if read pattern was found or not
+		if len(read_results)==0:
+			return (read_id,read,0,"")
+		read_accuracy,readResults_eval = self.verifyReadResults(read_results,SEQ,read)
+		#out_line = "{0}|read_accuracy= {1}\n".format(read_id,read_accuracy)
+		#f.write(out_line)
+		locations = ''
+		for loc,error_flag in readResults_eval:
+			gene_id, loc_in_genome = GenomeSequenceReader.getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL,len(SEQ))
+			locations = locations + " {0}:{1}:{2}".format(gene_id,loc_in_genome,error_flag)
+		locations = locations
+		return (read_id,read,read_accuracy,locations)
+
+	def verifyReadResults(self,readResults,SEQ,read):
+		readResults_eval = []
+		correct_cnt = 0
+		for loc in readResults:
+			#print("read in genome:",SEQ[loc:len(read)]," read:",read)
+			if SEQ[loc:loc+len(read)]==read:
+				correct_cnt += 1
+				readResults_eval.append((loc,1))
+			else:
+				readResults_eval.append((loc,-1))
+		return correct_cnt/len(readResults),readResults_eval	
 
 def main():
 	import sys

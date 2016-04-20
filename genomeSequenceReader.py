@@ -1,6 +1,7 @@
 import os
 '''
 genome sequence fetcher
+author: nabin maharjan
 '''
 class GenomeSequenceReader:
 

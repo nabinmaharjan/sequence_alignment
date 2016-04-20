@@ -2,6 +2,7 @@ from genomeSequenceReader import GenomeSequenceReader
 
 '''
 read sequence fetcher
+author: nabin maharjan
 '''
 
 class ReadSequenceReader:

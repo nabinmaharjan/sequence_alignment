@@ -1,5 +1,7 @@
 from radixSort import RadixSort
-'''class to build SuffixArray'''
+'''class to build SuffixArray
+author: nabin maharjan
+'''
 class SuffixArray:
 
 
@@ -28,7 +30,7 @@ class SuffixArray:
 		return INT_SEQ
 
 
-	'''method to build suffix array in linear time'''
+	'''method to build suffix array in linear time using DC3 algorithm'''
 	@staticmethod
 	def buildLinearSA(SEQ):
 		
