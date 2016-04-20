@@ -45,42 +45,6 @@ class FMINDEX:
 			fmIndex_data = pickle.load(input)
 		return fmIndex_data
 
-	'''
-	file in fastq format expected
-	@r1.1|NC_022760.1-632710
-	GTGGAACACGCCGGCAAGAT
-	+ 
-	!!!!!!!!!!!!!!!!!!!!
-	'''	
-	@staticmethod	
-	def fetchReads(read_file):
-		print("read file", read_file)
-		reads = []
-		with open(read_file,"r") as f:
-			lines = f.readlines()
-			for i in range(1,len(lines)+1):
-				if i%4==2:
-					read_id ="{0}_{1}".format(read_file ,(i//4 + 1))
-					read_seq = lines[i-1].strip()
-					reads.append((read_id,read_seq))
-		return reads
-
-
-
-
-	'''
-	>gi|31563518|ref|NP_852610.1| microtubule-associated proteins 1A/1B light chain 3A isoform b [Homo sapiens]
-	MKMRFFSSPCGKAAVDPADRCKEVQQIRDQHPSKIPVIIERYKGEKQLPVLDKTKFLVPDHVNMSELVKIIRRRLQLNPTQAFFLLVNQHSMVSVSTPIADIYEQEKDEDGFLYMVYASQETFGFIRENE
-	'''	
-	@staticmethod
-	def readSequence(genome_file):
-		SEQ = ''
-		with open(genome_file,"r") as f:
-			lines = f.readlines()
-			for l in lines:
-				if l[0] !=">":
-					SEQ = SEQ + l.strip()
-		return SEQ
 
 	#BWT = characters just to the left of the suffixes in the suffix array
 	def buildBWT(self,SEQ):
