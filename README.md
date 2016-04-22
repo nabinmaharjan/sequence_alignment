@@ -47,43 +47,43 @@
 
   Applying the strict matching helps to increase the precision of the search result while loose matching will help to improve the recall.
 
-  4. Performing Single Read Search
+  4. Performing Single Read Search<br />
 
-  Set pairReadSearch to false
+  Set pairReadSearch to false<br />
 
-  python readSearch.py false false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq
+  python readSearch.py false false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq<br />
 
-  5. Running in debug mode
+  5. Running in debug mode<br />
   
-  Set debug to true. This will print the locations and genomes where read match occur.
+  Set debug to true. This will print the locations and genomes where read match occur.<br />
 
-  python readSearch.py true false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq
+  python readSearch.py true false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq<br />
 
 
   Input File Formats
   ---------
 
-  Reference Genome File Format: fasta with .fna extension
+  Reference Genome File Format: fasta with .fna extension<br />
 
-  Read File Format: fastq with .fq extenstion
+  Read File Format: fastq with .fq extenstion<br />
 
    Output File Format
   ---------
-  Read Search Output
-  each line is read_id| reference genomes where read match occurs
+  Read Search Output<br />
+  each line is read_id| reference genomes where read match occurs<br />
 
-  @r4.1|NC_022760.1
-  @r9.1|NC_022760.1
+  @r4.1|NC_022760.1<br />
+  @r9.1|NC_022760.1<br />
 
   Read Search output(Debug mode)
-  each read has two lines for its ouput.
-  1st line is read_id|read sequence|total read match| reference genomes where read match occurs
-  2nd line is list of genome_id:location pairs indicating read match occurrences
+  each read has two lines for its ouput.<br />
+  1st line is read_id|read sequence|total read match| reference genomes where read match occurs<br />
+  2nd line is list of genome_id:location pairs indicating read match occurrences<br />
 
-  @r24.1|ACAAAGGACTGAATAAAATT|1|NC_022760.1
-  NC_022760.1:155545
-  @r24.2|CACGGTTAAAATAAGTCAGG|2|NC_022760.1
-  NC_022760.1_rev:99918 NC_022760.1_rev:113971
+  @r24.1|ACAAAGGACTGAATAAAATT|1|NC_022760.1<br />
+  NC_022760.1:155545<br />
+  @r24.2|CACGGTTAAAATAAGTCAGG|2|NC_022760.1<br />
+  NC_022760.1_rev:99918 NC_022760.1_rev:113971<br />
 
   Licensing
   ---------
