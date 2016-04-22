@@ -1,0 +1,21 @@
+'''
+developer notes
+'''
+
+1. outputFormat:
+R1_id|Gen_1|Gen_2|???
+	-Question: do we write blank for read which have no alignment in reference genome??? No, we discard it!!!
+
+
+2. Question: Do we need to verify Pair-End Read??? maximum allowable distance between R1 and R2 restriction??
+	i. both R1 and R2 should match into same genome (either main or complement genome)
+	ii. the max 2000 seq distance between R1 and R2
+	iii. if there are multiple matches for R1 and R2, just verifying the above two conditions hold for R1 and R2 pair is sufficient enough to assign to reference genome
+
+3. Assigning Read to Genome
+	- assign to Gen1 if Read is matched in genome or its reverse genome with the conditions in 2 all satisfied
+
+4. Discard reads with 'N' char in the sequence???
+
+5. Question: For pair-end read search, what if R1 matches in reference genome and R2 don't match??? discard the match for R1??
+

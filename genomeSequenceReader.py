@@ -53,18 +53,19 @@ class GenomeSequenceReader:
 			genome_file = os.path.join(genome_folder,f)
 			if os.path.isfile(genome_file):
 				if f.endswith(".fna"):
-					files.append([f,genome_file])
+					files.append(genome_file)
 		
 		for i in range(len(files)):
-			f,genome_file = files[i]
+			genome_file = files[i]
 			print("genome_file",f)
-			temp_SEQ = GenomeSequenceReader.readSequence(genome_file)
+			gen_id,temp_SEQ = GenomeSequenceReader.readSequence(genome_file)
 			last_SEQ_len = len(seq)
 			if i == len(files)-1:
 				seq = seq + temp_SEQ + "$"
 			else:
 				seq = seq + temp_SEQ + GEN_DEL
-			gen_loc[f] = (last_SEQ_len,len(seq))
+			gen_loc[gen_id] = (last_SEQ_len,len(seq))
+		#print("concatenated_genome_length: ",len(seq))
 		return seq,gen_loc
 
 	'''
@@ -73,11 +74,14 @@ class GenomeSequenceReader:
 	'''	
 	@staticmethod
 	def readSequence(genome_file):
+		seq_id = ''
 		SEQ = ''
 		with open(genome_file,"r") as f:
 			lines = f.readlines()
 			for l in lines:
-				if l[0] !=">":
+				if l[0] ==">":
+					seq_id = l.strip().split('|')[3]
+				else:
 					SEQ = SEQ + l.strip()
 
 		#compute the reverse complement of the genome SEQ and append it
@@ -85,7 +89,7 @@ class GenomeSequenceReader:
 
 		#concatenate SEQ with its reverse complement SEQ
 		SEQ = SEQ + "N" + rev_SEQ
-		return SEQ
+		return seq_id,SEQ
 
 	@staticmethod	
 	def getComplementSequence(SEQ,seqType = "dna"):

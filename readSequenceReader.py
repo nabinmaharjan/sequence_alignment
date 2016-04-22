@@ -39,14 +39,7 @@ class ReadSequenceReader:
 			lines = f.readlines()
 			for i in range(1,len(lines)+1):
 				if i%4==2:
-					fileName = ""
-					if read_file.find("/")>-1:
-						fileName = read_file[read_file.rfind('/')+1:]
-					elif read_file.find("\\")>-1:
-						fileName = read_file[read_file.rfind("\\")+1:]
-					else:
-						fileName = read_file
-					read_id ="{0}_{1}".format(fileName ,(i//4 + 1))
+					read_id = lines[i-2].strip().split('|')[0]
 					read_seq = lines[i-1].strip()
 					reads.append((read_id,read_seq))
 		return reads

@@ -40,9 +40,8 @@ class FMINDEX:
 	def saveFMIndex(self,index_file):
 		with open(index_file,"wb") as output:
 			pickle.dump(self,output,pickle.HIGHEST_PROTOCOL)
-
-	@staticmethod		
-	def loadFMIndex(index_file)	:
+		
+	def loadFMIndex(self,index_file)	:
 		fmIndex_data = None
 		with open(index_file,"rb") as input:
 			fmIndex_data = pickle.load(input)
@@ -131,54 +130,136 @@ class FMINDEX:
 			resArray.append(self.SA[sp+i])
 		return resArray
 
-	def performSingleReadSearch(self,reads,SEQ,gen_loc,GEN_DEL,readOut_file):
+	def performSingleReadSearch(self,reads,SEQ,gen_loc,GEN_DEL,readOut_file,debug = False):
 		readOut_file = readOut_file + "_singleReadSearch.txt"
 		with open(readOut_file,"w") as f:
 			for read_tuple in reads:
-				read_id,read,read_accuracy,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL)
-				if locations == "":
+				read_id,read,read_accuracy,read_gen_list,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL)
+				if len(read_gen_list) == 0:
 					continue
-				out_line = "{0}|{1}|read_accuracy= {2:.2f}\n".format(read_id,read,read_accuracy)
-				f.write(out_line)
-				f.write(locations + "\n")
+				f.write(self.getStringFormattedReadOutput(read_id,read,read_accuracy,read_gen_list,locations,debug))
 
-	def performPairEndSearch(self,pairedReads,SEQ,gen_loc,GEN_DEL,readOut_file):
+	def applyStrictPairEndMatching(self,read1_gen_list,locations1,read2_gen_list,locations2):
+		#max distance gap between read1 and read1
+		max_gap =  2000
+		#keep track of genomes for which we already have a read pair match
+		read_pair_aligned_gen_map = {}
+
+		read1_gen_map = {}
+		for gen_id1, loc_in_genome1 in locations1:
+			if gen_id1 not in read1_gen_map:
+				read1_gen_map[gen_id1] = []
+			read1_gen_map[gen_id1].append(loc_in_genome1)
+
+		read1_genomes = read1_gen_map.keys()
+
+		read2_gen_map = {}
+		for gen_id2, loc_in_genome2 in locations2:
+			# we simpy discard the read2 match as there is no read1 match for this genome
+			if gen_id2 not in read1_genomes:
+				continue
+			#initialize read_pair_aligned_gen_map[gen_id2] = False if its not already in map
+			#check if current genome is reverse complement genome
+			gen_key = gen_id2
+			if gen_id2.endswith("_rev"):
+				gen_key = gen_id2[:-4]
+			#otherwise, curent genome is main genome...
+			if gen_key not in read_pair_aligned_gen_map:
+				read_pair_aligned_gen_map[gen_key] = False
+			else:
+				if read_pair_aligned_gen_map[gen_key]: # we already has R1 and R2 matched with this genome..no need to look at other repeat matches
+					continue 
+			read1_loc_list = read1_gen_map[gen_id2]
+			for  loc1 in read1_loc_list:
+				if abs(loc_in_genome2-loc1)<=max_gap:
+					#we have a valid read-pair match in the genome. so discontinue pair match search
+					read_pair_aligned_gen_map[gen_key]=True
+					break
+		#now return the list of genomes for which we have pair-end match for read1 and read1
+		return [genome for genome in read_pair_aligned_gen_map if read_pair_aligned_gen_map[genome]]
+
+
+	def getStringFormattedReadOutput(self,read_id,read,read_accuracy,read_gen_list,locations,debug):
+		out_line = read_id
+		if debug:
+			out_line += "|{0}|read_accuracy= {1:.2f}".format(read,read_accuracy)
+		read_gen_list = "|".join(read_gen_list) 
+		out_line += "|" + read_gen_list + "\n"
+		if debug:
+			location_str = ''
+			for gene_id, loc_in_genome in locations:
+				location_str = location_str + " {0}:{1}".format(gene_id,loc_in_genome)
+			out_line += location_str + "\n"
+		return out_line
+
+
+	def performPairEndSearch(self,pairedReads,SEQ,gen_loc,GEN_DEL,readOut_file,debug = False,applyStrictMatching=False):
 		readOut_file = readOut_file + "_pairedEndReadSearch.txt"
 		with open(readOut_file,"w") as f:
-			for read1_tuple,read2_tuple in reads:
-				read1_id = read1_tuple[0]
-				read1 = read1_tuple[1]
+			for read1_tuple,read2_tuple in pairedReads:
+				read1_id,read1,read1_accuracy,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL)
+				#if no match for read1, no need to perform search for read2
+				if len(read1_gen_list) == 0:
+					continue
+				#perform search for read2
+				read2_id,read2,read2_accuracy,read2_gen_list,locations2 = self.getReadSearchOutput(read2_tuple,SEQ,gen_loc,GEN_DEL)
+				#if no match for read2, we discard the match. 
+				if len(read2_gen_list) == 0:
+					continue
 
+				#We follow strict matching where matching is valid if and only if both read1 and read2 match in the same genome
+				if applyStrictMatching:
+					read2_gen_list = self.applyStrictPairEndMatching(read1_gen_list,locations1,read2_gen_list,locations2)
+					read1_gen_list = read2_gen_list
+					if len(read1_gen_list)==0:
+						print("no paired read {0}-{1} pattern match found in the sequence...".format(read1_id,read2_id))
+						if not debug:
+							continue
+
+				f.write(self.getStringFormattedReadOutput(read1_id,read1,read1_accuracy,read1_gen_list,locations1,debug))
+				f.write(self.getStringFormattedReadOutput(read2_id,read2,read2_accuracy,read2_gen_list,locations2,debug))
 
 	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL):
 		read_id,read = read_tuple[0],read_tuple[1]
+
+		#check whether the read is invalid i.e. contains 'N' char. we don't want to do search if it is a invalid read!
+		if read.find('N')>-1:
+			return (read_id,read,0,[],"")
+
 		#print("read",read)
 		read_results = self.searchPattern(read)
 
 		#check if read pattern was found or not
 		if len(read_results)==0:
-			return (read_id,read,0,"")
-		read_accuracy,readResults_eval = self.verifyReadResults(read_results,SEQ,read)
-		#out_line = "{0}|read_accuracy= {1}\n".format(read_id,read_accuracy)
-		#f.write(out_line)
-		locations = ''
-		for loc,error_flag in readResults_eval:
+			return (read_id,read,0,[],"")
+		read_accuracy,readResults_eval,error_readResults = self.verifyReadResults(read_results,SEQ,read)
+		
+		locations = []
+
+		#list to store the list of genomes where they are found
+		read_gen_list = []
+		
+		for loc in readResults_eval:
 			gene_id, loc_in_genome = GenomeSequenceReader.getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL,len(SEQ))
-			locations = locations + " {0}:{1}:{2}".format(gene_id,loc_in_genome,error_flag)
-		locations = locations
-		return (read_id,read,read_accuracy,locations)
+			locations.append((gene_id,loc_in_genome))
+			if gene_id.endswith("_rev"):
+				gene_id = gene_id[:-4]
+			if gene_id not in read_gen_list:
+				read_gen_list.append(gene_id)
+		return (read_id,read,read_accuracy,read_gen_list,locations)
 
 	def verifyReadResults(self,readResults,SEQ,read):
 		readResults_eval = []
+		error_readResults = []
 		correct_cnt = 0
 		for loc in readResults:
 			#print("read in genome:",SEQ[loc:len(read)]," read:",read)
 			if SEQ[loc:loc+len(read)]==read:
 				correct_cnt += 1
-				readResults_eval.append((loc,1))
-			else:
-				readResults_eval.append((loc,-1))
-		return correct_cnt/len(readResults),readResults_eval	
+				readResults_eval.append(loc)
+			else: # can we simply discard the read results which are verified as negative???
+				error_readResults.append(loc)
+		return correct_cnt/len(readResults),readResults_eval,error_readResults	
 
 def main():
 	import sys
