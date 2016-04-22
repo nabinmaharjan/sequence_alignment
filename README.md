@@ -18,8 +18,7 @@
   pre-requisite: python 3.5.1
 
 
-
-  python readSearch.py <debug{true|false}> <applyStrictPairEndMatching{true|false} <buildIndex{true|false}> <index_file> <genome_folder> <pairReadSearch{true|false}> <read_file1> <read_file2>
+  python readSearch.py debug{true|false} applyStrictPairEndMatching{true|false} buildIndex{true|false} index_file genome_folder pairReadSearch{true|false} read_file1 read_file2
 
   1. Building FMIndex and performing pair end read search
   The FMIndex needs to be built for the sequence of reference genomes for the first time. The tool constructs 
@@ -64,17 +63,18 @@
   ---------
 
   Reference Genome File Format: fasta with .fna extension
+
   Read File Format: fastq with .fq extenstion
 
    Output File Format
   ---------
-  Read Search Output:
+  Read Search Output
   each line is read_id| reference genomes where read match occurs
 
   @r4.1|NC_022760.1
   @r9.1|NC_022760.1
 
-  Read Search output(Debug mode):
+  Read Search output(Debug mode)
   each read has two lines for its ouput.
   1st line is read_id|read sequence|total read match| reference genomes where read match occurs
   2nd line is list of genome_id:location pairs indicating read match occurrences
@@ -83,6 +83,7 @@
  	NC_022760.1:155545
   @r24.2|CACGGTTAAAATAAGTCAGG|2|NC_022760.1
     NC_022760.1_rev:99918 NC_022760.1_rev:113971
+
   Licensing
   ---------
 
