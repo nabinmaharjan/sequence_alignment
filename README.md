@@ -54,6 +54,7 @@
   python readSearch.py false false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq
 
   5. Running in debug mode
+  
   Set debug to true. This will print the locations and genomes where read match occur.
 
   python readSearch.py true false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq
