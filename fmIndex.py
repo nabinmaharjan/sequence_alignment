@@ -179,10 +179,10 @@ class FMINDEX:
 		return [genome for genome in read_pair_aligned_gen_map if read_pair_aligned_gen_map[genome]]
 
 
-	def getStringFormattedReadOutput(self,read_id,read,read_accuracy,read_gen_list,locations,debug):
+	def getStringFormattedReadOutput(self,read_id,read,read_cnt,read_gen_list,locations,debug):
 		out_line = read_id
 		if debug:
-			out_line += "|{0}|read_accuracy= {1:.2f}".format(read,read_accuracy)
+			out_line += "|{0}|{1}".format(read,read_cnt)
 		read_gen_list = "|".join(read_gen_list) 
 		out_line += "|" + read_gen_list + "\n"
 		if debug:
@@ -197,14 +197,14 @@ class FMINDEX:
 		readOut_file = readOut_file + "_pairedEndReadSearch.txt"
 		with open(readOut_file,"w") as f:
 			for read1_tuple,read2_tuple in pairedReads:
-				read1_id,read1,read1_accuracy,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL)
-				#if no match for read1, no need to perform search for read2
-				if len(read1_gen_list) == 0:
+				read1_id,read1,read1_cnt,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL)
+				#if no match for read1, no need to perform search for read2 in strict mode
+				if len(read1_gen_list) == 0 and applyStrictMatching:
 					continue
 				#perform search for read2
-				read2_id,read2,read2_accuracy,read2_gen_list,locations2 = self.getReadSearchOutput(read2_tuple,SEQ,gen_loc,GEN_DEL)
-				#if no match for read2, we discard the match. 
-				if len(read2_gen_list) == 0:
+				read2_id,read2,read2_cnt,read2_gen_list,locations2 = self.getReadSearchOutput(read2_tuple,SEQ,gen_loc,GEN_DEL)
+				#if no match for read2, we discard the match in strict mode 
+				if len(read2_gen_list) == 0 and applyStrictMatching:
 					continue
 
 				#We follow strict matching where matching is valid if and only if both read1 and read2 match in the same genome
@@ -216,8 +216,10 @@ class FMINDEX:
 						if not debug:
 							continue
 
-				f.write(self.getStringFormattedReadOutput(read1_id,read1,read1_accuracy,read1_gen_list,locations1,debug))
-				f.write(self.getStringFormattedReadOutput(read2_id,read2,read2_accuracy,read2_gen_list,locations2,debug))
+				if len(read1_gen_list) > 0:			
+					f.write(self.getStringFormattedReadOutput(read1_id,read1,read1_cnt,read1_gen_list,locations1,debug))
+				if len(read2_gen_list) > 0:
+					f.write(self.getStringFormattedReadOutput(read2_id,read2,read2_cnt,read2_gen_list,locations2,debug))
 
 	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL):
 		read_id,read = read_tuple[0],read_tuple[1]
@@ -232,7 +234,7 @@ class FMINDEX:
 		#check if read pattern was found or not
 		if len(read_results)==0:
 			return (read_id,read,0,[],"")
-		read_accuracy,readResults_eval,error_readResults = self.verifyReadResults(read_results,SEQ,read)
+		read_cnt,readResults_eval,error_readResults = self.verifyReadResults(read_results,SEQ,read)
 		
 		locations = []
 
@@ -246,7 +248,7 @@ class FMINDEX:
 				gene_id = gene_id[:-4]
 			if gene_id not in read_gen_list:
 				read_gen_list.append(gene_id)
-		return (read_id,read,read_accuracy,read_gen_list,locations)
+		return (read_id,read,read_cnt,read_gen_list,locations)
 
 	def verifyReadResults(self,readResults,SEQ,read):
 		readResults_eval = []
@@ -259,7 +261,7 @@ class FMINDEX:
 				readResults_eval.append(loc)
 			else: # can we simply discard the read results which are verified as negative???
 				error_readResults.append(loc)
-		return correct_cnt/len(readResults),readResults_eval,error_readResults	
+		return correct_cnt,readResults_eval,error_readResults	
 
 def main():
 	import sys

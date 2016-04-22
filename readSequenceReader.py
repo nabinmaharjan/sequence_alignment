@@ -32,14 +32,30 @@ class ReadSequenceReader:
 	!!!!!!!!!!!!!!!!!!!!
 	'''	
 	@staticmethod	
-	def fetchReads(read_file):
+	def fetchReads(read_file,use_source_file_in_id = True):
 		print("read file", read_file)
 		reads = []
+
+		read_source_filename = ''
+		if use_source_file_in_id:
+			index = read_file.rfind('/')
+			if index == -1:
+				index = read_file.rfind('\\')
+
+			if index == -1:
+				read_source_filename = read_file
+			else:
+				read_source_filename = read_file[index+1:]
+
+		#print("read source file",read_source_filename)
+
 		with open(read_file,"r") as f:
 			lines = f.readlines()
 			for i in range(1,len(lines)+1):
 				if i%4==2:
 					read_id = lines[i-2].strip().split('|')[0]
+					if use_source_file_in_id:
+						read_id +=  "|" + read_source_filename
 					read_seq = lines[i-1].strip()
 					reads.append((read_id,read_seq))
 		return reads
