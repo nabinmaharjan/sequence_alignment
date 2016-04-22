@@ -18,12 +18,12 @@
   pre-requisite: python 3.5.1
 
 
-  python readSearch.py debug{true|false} applyStrictPairEndMatching{true|false} buildIndex{true|false} index_file genome_folder pairReadSearch{true|false} read_file1 read_file2
+  *python readSearch.py debug{true|false} applyStrictPairEndMatching{true|false} buildIndex{true|false} index_file genome_folder pairReadSearch{true|false} read_file1 read_file2*
 
   1. Building FMIndex and performing pair end read search
   The FMIndex needs to be built for the sequence of reference genomes for the first time. The tool constructs 
 
-  python readSearch.py false true true fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq
+  *python readSearch.py false true true fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq*
 
   The above commands scans  all the reference genomes in fasta format (.fna extension) and builds a single sequence by
   concatenating all the reference genomes and their reverse complements and, then builds a single concatenated reference genome. 
@@ -35,15 +35,15 @@
 
   2. Loading FMIndex and performing pair end read search
 
-  python readSearch.py false true false fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq
+  *python readSearch.py false true false fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq*
 
   3. Performing pair end read search in strict mode
 
-  python readSearch.py false true false fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq
+  *python readSearch.py false true false fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq*
 
   In strict pair end read matching mode, the match is considered true if and only if both read pairs occur in the same reference genome (or its reverse complement) and the sequence gap between them is at most 2000. It's either 'All or None' assignment of read pairs to the reference genome. In loose matching, we assign a read to a reference genome agnostic to the match condition of  the second read. This is equivalent to performing Single Read Search.
 
-  python readSearch.py false true false fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq
+  *python readSearch.py false true false fmIndex.pkl data/referenceGenome true data/reads/read1.fq data/reads/read2.fq*
 
   Applying the strict matching helps to increase the precision of the search result while loose matching will help to improve the recall.
 
@@ -51,13 +51,13 @@
 
   Set pairReadSearch to false<br />
 
-  python readSearch.py false false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq<br />
+  *python readSearch.py false false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq*<br />
 
   5. Running in debug mode<br />
   
   Set debug to true. This will print the locations and genomes where read match occur.<br />
 
-  python readSearch.py true false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq<br />
+  *python readSearch.py true false false fmIndex.pkl data/referenceGenome false data/reads/read1.fq*<br />
 
 
   Input File Formats
@@ -75,7 +75,7 @@
   @r4.1|NC_022760.1<br />
   @r9.1|NC_022760.1<br />
 
-  Read Search output(Debug mode)
+  Read Search output(Debug mode)<br />
   each read has two lines for its ouput.<br />
   1st line is read_id|read sequence|total read match| reference genomes where read match occurs<br />
   2nd line is list of genome_id:location pairs indicating read match occurrences<br />
