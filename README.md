@@ -81,9 +81,9 @@
   2nd line is list of genome_id:location pairs indicating read match occurrences
 
   @r24.1|ACAAAGGACTGAATAAAATT|1|NC_022760.1
- 	NC_022760.1:155545
+  NC_022760.1:155545
   @r24.2|CACGGTTAAAATAAGTCAGG|2|NC_022760.1
-    NC_022760.1_rev:99918 NC_022760.1_rev:113971
+  NC_022760.1_rev:99918 NC_022760.1_rev:113971
 
   Licensing
   ---------
