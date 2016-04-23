@@ -134,6 +134,9 @@ class FMINDEX:
 		readOut_file = readOut_file + "_singleReadSearch.txt"
 		with open(readOut_file,"w") as f:
 			for read_tuple in reads:
+				#check whether the read is invalid i.e. contains 'N' char. we don't want to do search if it is a invalid read!
+				if read_tuple[1].find('N')>-1:
+					continue
 				read_id,read,read_accuracy,read_gen_list,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL)
 				#if len(read_gen_list) == 0:
 					#continue
@@ -155,11 +158,10 @@ class FMINDEX:
 
 		read2_gen_map = {}
 		for gen_id2, loc_in_genome2 in locations2:
-			continue_pair_search = True
 
 			# we simpy discard the read2 match as there is no read1 match for this genome
 			if gen_id2 not in read1_genomes:
-				continue_pair_search = False
+				continue
 			#initialize read_pair_aligned_gen_map[gen_id2] = False if its not already in map
 			#check if current genome is reverse complement genome
 			gen_key = gen_id2
@@ -203,6 +205,9 @@ class FMINDEX:
 		with open(readOut_file,"w") as f:
 			for read1_tuple,read2_tuple in pairedReads:
 				
+				#check whether the read is invalid i.e. contains 'N' char. we don't want to do search if it is a invalid read!
+				if read1_tuple[1].find('N')>-1:
+					continue
 
 				read1_id,read1,read1_cnt,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL)
 				#if no match for read1, no need to perform search for read2 in strict mode
@@ -239,10 +244,6 @@ class FMINDEX:
 
 	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL):
 		read_id,read = read_tuple[0],read_tuple[1]
-
-		#check whether the read is invalid i.e. contains 'N' char. we don't want to do search if it is a invalid read!
-		if read.find('N')>-1:
-			return (read_id,read,0,[],"")
 
 		#print("read",read)
 		read_results = self.searchPattern(read)
