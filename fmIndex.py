@@ -135,8 +135,8 @@ class FMINDEX:
 		with open(readOut_file,"w") as f:
 			for read_tuple in reads:
 				read_id,read,read_accuracy,read_gen_list,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL)
-				if len(read_gen_list) == 0:
-					continue
+				#if len(read_gen_list) == 0:
+					#continue
 				f.write(self.getStringFormattedReadOutput(read_id,read,read_accuracy,read_gen_list,locations,debug))
 
 	def applyStrictPairEndMatching(self,read1_gen_list,locations1,read2_gen_list,locations2):
@@ -155,9 +155,11 @@ class FMINDEX:
 
 		read2_gen_map = {}
 		for gen_id2, loc_in_genome2 in locations2:
+			continue_pair_search = True
+
 			# we simpy discard the read2 match as there is no read1 match for this genome
 			if gen_id2 not in read1_genomes:
-				continue
+				continue_pair_search = False
 			#initialize read_pair_aligned_gen_map[gen_id2] = False if its not already in map
 			#check if current genome is reverse complement genome
 			gen_key = gen_id2
@@ -183,7 +185,10 @@ class FMINDEX:
 		out_line = read_id
 		if debug:
 			out_line += "|{0}|{1}".format(read,read_cnt)
-		read_gen_list = "|".join(read_gen_list) 
+		if len(read_gen_list) == 0:
+			read_gen_list = "NA"
+		else:
+			read_gen_list = "|".join(read_gen_list) 
 		out_line += "|" + read_gen_list + "\n"
 		if debug:
 			location_str = ''
@@ -197,15 +202,24 @@ class FMINDEX:
 		readOut_file = readOut_file + "_pairedEndReadSearch.txt"
 		with open(readOut_file,"w") as f:
 			for read1_tuple,read2_tuple in pairedReads:
+				
+
 				read1_id,read1,read1_cnt,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL)
 				#if no match for read1, no need to perform search for read2 in strict mode
 				if len(read1_gen_list) == 0 and applyStrictMatching:
+					f.write(self.getStringFormattedReadOutput(read1_id,read1,0,[],[],debug))
+					f.write(self.getStringFormattedReadOutput(read2_tuple[0],read2_tuple[1],0,[],[],debug))
 					continue
+					
+
 				#perform search for read2
 				read2_id,read2,read2_cnt,read2_gen_list,locations2 = self.getReadSearchOutput(read2_tuple,SEQ,gen_loc,GEN_DEL)
 				#if no match for read2, we discard the match in strict mode 
 				if len(read2_gen_list) == 0 and applyStrictMatching:
+					f.write(self.getStringFormattedReadOutput(read1_id,read1,0,[],[],debug))
+					f.write(self.getStringFormattedReadOutput(read2_id,read2,0,[],[],debug))
 					continue
+					
 
 				#We follow strict matching where matching is valid if and only if both read1 and read2 match in the same genome
 				if applyStrictMatching:
@@ -214,12 +228,14 @@ class FMINDEX:
 					if len(read1_gen_list)==0:
 						print("no paired read {0}-{1} pattern match found in the sequence...".format(read1_id,read2_id))
 						if not debug:
+							f.write(self.getStringFormattedReadOutput(read1_id,read1,0,[],[],debug))
+							f.write(self.getStringFormattedReadOutput(read2_id,read2,0,[],[],debug))
 							continue
 
-				if len(read1_gen_list) > 0:			
-					f.write(self.getStringFormattedReadOutput(read1_id,read1,read1_cnt,read1_gen_list,locations1,debug))
-				if len(read2_gen_list) > 0:
-					f.write(self.getStringFormattedReadOutput(read2_id,read2,read2_cnt,read2_gen_list,locations2,debug))
+				#if len(read1_gen_list) > 0:			
+				f.write(self.getStringFormattedReadOutput(read1_id,read1,read1_cnt,read1_gen_list,locations1,debug))
+				#if len(read2_gen_list) > 0:
+				f.write(self.getStringFormattedReadOutput(read2_id,read2,read2_cnt,read2_gen_list,locations2,debug))
 
 	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL):
 		read_id,read = read_tuple[0],read_tuple[1]

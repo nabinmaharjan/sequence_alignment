@@ -82,6 +82,9 @@
 
   @r4.1|small_data2_1.fq|NC_022760.1<br />
   @r9.1|small_data2_1.fq|NC_022760.1<br />
+  @r11.1|small_data2_1.fq|NA<br />
+
+  If read is not matched in any genome, it is assigned NA. For example read **@r11.1** in the above example output. <br/>
 
   **Read Search output(Debug mode)** <br />
   each read has two lines for its ouput.<br />
@@ -92,6 +95,10 @@
   NC_022760.1:155545<br />
   @r24.2|small_data2_1.fq|CACGGTTAAAATAAGTCAGG|2|NC_022760.1<br />
   NC_022760.1_rev:99918 NC_022760.1_rev:113971<br />
+  @r91.2|GGTGCGGTGTGACTGATGAA|0|NA<br />
+  <br />
+   
+  In debug mode, if there is no match for the read, it is assigned NA and empty line is generated for location information. For exampe, read **@r91.2** in the debug output.<br/>
 
   Licensing
   ---------
