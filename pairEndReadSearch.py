@@ -2,6 +2,7 @@ from fmIndex import FMINDEX
 from genomeSequenceReader import GenomeSequenceReader
 from readSequenceReader import ReadSequenceReader
 import os
+import time
 
 '''
 python pairEndReadSearch.py <debug{true|false}> <applyStrictPairEndMatching{true|false} <buildIndex{true|false}> <index_file> <genome_folder> <paired_read_folder> <read_output_folder>  
@@ -37,7 +38,10 @@ def main():
 
 	if buildFMIndex.lower()=="true":
 		print("building FMINDEX...")
+		start = time.clock()
 		fmIndex.buildFMIndex(SEQ)
+		end = time.clock()
+		print("time required to build fmIndex for {0} is {1} seconds".format(genome_folder,end-start))
 		fmIndex.saveFMIndex(index_file)
 	else:
 		print("loading FMINDEX...")
@@ -78,7 +82,7 @@ def main():
 					pairedReads.extend(ReadSequenceReader.readPairEndReads(read_file1,read_file))
 
 	
-	fmIndex.performPairEndSearch(pairedReads,SEQ,gen_loc,GEN_DEL,readOut_file,isDebugMode,applyStrictPairEndMatching)
+	fmIndex.performPairEndSearch(pairedReads,SEQ,gen_loc,len(GEN_DEL),readOut_file,isDebugMode,applyStrictPairEndMatching)
 
 
 if __name__ == "__main__":main()

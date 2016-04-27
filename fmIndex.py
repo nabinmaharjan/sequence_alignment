@@ -1,6 +1,7 @@
 from SuffixArrayDC3 import SuffixArray
 from genomeSequenceReader import GenomeSequenceReader
 import pickle
+import time
 
 '''FM Index
 author: nabin maharjan
@@ -31,6 +32,7 @@ class FMINDEX:
 
 	def buildFMIndex(self,SEQ):
 		self.LEN = len(SEQ)
+		
 		self.buildSuffixArray(SEQ)
 		self.buildBWT(SEQ)
 		self.buildCountTable()
@@ -68,10 +70,14 @@ class FMINDEX:
 
 	def buildSuffixArray(self,SEQ):
 		#self.SA = SuffixArray.buildNaiveSA(SEQ)
-
-
+		print("building suffix Array...")
+		st1 = time.clock()
 		INT_SEQ  = SuffixArray.convertToIntegerAlphabetSequence(SEQ)
+		st2= time.clock()
 		self.SA = SuffixArray.buildLinearSA(INT_SEQ)
+		end = time.clock()
+		print("time required to build suffixArray for sequence length of {0} is {1} seconds".format(self.LEN,end-st2))
+		print("time required to build suffixArray with integer alphabet conversion for sequence length of {0} is {1} seconds".format(self.LEN,end-st1))
 		
 
 	def buildCountTable(self):
@@ -130,17 +136,22 @@ class FMINDEX:
 			resArray.append(self.SA[sp+i])
 		return resArray
 
-	def performSingleReadSearch(self,reads,SEQ,gen_loc,GEN_DEL,readOut_file,debug = False):
+	def performSingleReadSearch(self,reads,SEQ,gen_loc,GEN_DEL_len,readOut_file,debug = False):
 		readOut_file = readOut_file + "_singleReadSearch.txt"
+		print("performing single read search with outfile: {0}".format(readOut_file))
+		st1 = time.clock()
 		with open(readOut_file,"w") as f:
 			for read_tuple in reads:
 				#check whether the read is invalid i.e. contains 'N' char. we don't want to do search if it is a invalid read!
 				if read_tuple[1].find('N')>-1:
 					continue
-				read_id,read,read_accuracy,read_gen_list,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL)
+				read_id,read,read_accuracy,read_gen_list,locations = self.getReadSearchOutput(read_tuple,SEQ,gen_loc,GEN_DEL_len)
 				#if len(read_gen_list) == 0:
 					#continue
 				f.write(self.getStringFormattedReadOutput(read_id,read,read_accuracy,read_gen_list,locations,debug))
+		end1 = time.clock()
+		print("time taken to perform single read search with saving output: {0} sec".format(end1-st1))
+
 
 	def applyStrictPairEndMatching(self,read1_gen_list,locations1,read2_gen_list,locations2):
 		#max distance gap between read1 and read1
@@ -200,8 +211,10 @@ class FMINDEX:
 		return out_line
 
 
-	def performPairEndSearch(self,pairedReads,SEQ,gen_loc,GEN_DEL,readOut_file,debug = False,applyStrictMatching=False):
+	def performPairEndSearch(self,pairedReads,SEQ,gen_loc,GEN_DEL_len,readOut_file,debug = False,applyStrictMatching=False):
 		readOut_file = readOut_file + "_pairedEndReadSearch.txt"
+		print("performing paired end read search with outfile: {0}".format(readOut_file))
+		st1 = time.clock()
 		with open(readOut_file,"w") as f:
 			for read1_tuple,read2_tuple in pairedReads:
 				
@@ -209,7 +222,7 @@ class FMINDEX:
 				if read1_tuple[1].find('N')>-1:
 					continue
 
-				read1_id,read1,read1_cnt,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL)
+				read1_id,read1,read1_cnt,read1_gen_list,locations1 = self.getReadSearchOutput(read1_tuple,SEQ,gen_loc,GEN_DEL_len)
 				#if no match for read1, no need to perform search for read2 in strict mode
 				if len(read1_gen_list) == 0 and applyStrictMatching:
 					f.write(self.getStringFormattedReadOutput(read1_id,read1,0,[],[],debug))
@@ -218,7 +231,7 @@ class FMINDEX:
 					
 
 				#perform search for read2
-				read2_id,read2,read2_cnt,read2_gen_list,locations2 = self.getReadSearchOutput(read2_tuple,SEQ,gen_loc,GEN_DEL)
+				read2_id,read2,read2_cnt,read2_gen_list,locations2 = self.getReadSearchOutput(read2_tuple,SEQ,gen_loc,GEN_DEL_len)
 				#if no match for read2, we discard the match in strict mode 
 				if len(read2_gen_list) == 0 and applyStrictMatching:
 					f.write(self.getStringFormattedReadOutput(read1_id,read1,0,[],[],debug))
@@ -241,13 +254,16 @@ class FMINDEX:
 				f.write(self.getStringFormattedReadOutput(read1_id,read1,read1_cnt,read1_gen_list,locations1,debug))
 				#if len(read2_gen_list) > 0:
 				f.write(self.getStringFormattedReadOutput(read2_id,read2,read2_cnt,read2_gen_list,locations2,debug))
+		end1 = time.clock()
+		print("time taken to perform pair end search with saving output: {0}".format(end1-st1))
 
-	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL):
+	def getReadSearchOutput(self,read_tuple,SEQ,gen_loc,GEN_DEL_len):
 		read_id,read = read_tuple[0],read_tuple[1]
-
+		#print("fetching reach search output for read: {0}".format(read_id))
+		#st1 = time.clock()
 		#print("read",read)
 		read_results = self.searchPattern(read)
-
+		#end1 = time.clock()
 		#check if read pattern was found or not
 		if len(read_results)==0:
 			return (read_id,read,0,[],"")
@@ -259,12 +275,15 @@ class FMINDEX:
 		read_gen_list = []
 		
 		for loc in readResults_eval:
-			gene_id, loc_in_genome = GenomeSequenceReader.getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL,len(SEQ))
+			gene_id, loc_in_genome = GenomeSequenceReader.getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL_len,len(SEQ))
 			locations.append((gene_id,loc_in_genome))
 			if gene_id.endswith("_rev"):
 				gene_id = gene_id[:-4]
 			if gene_id not in read_gen_list:
 				read_gen_list.append(gene_id)
+		#end2 = time.clock()
+		#print("time taken to get read search output from fmIndex: {0} sec".format(end1-st1))
+		#print("time taken to get read search output from fmIndex with verificatiion and assigning read match with individual genome: {0} sec".format(end2-st1))
 		return (read_id,read,read_cnt,read_gen_list,locations)
 
 	def verifyReadResults(self,readResults,SEQ,read):
@@ -293,17 +312,4 @@ def main():
 
 if __name__ == "__main__":main()
 
-'''
-#SEQ = 'yabbadabbado$'	
-SEQ = 'TACCAAATCTCCTTAGTGTAAGTTCAGACCAATTCGTACTTCGTTCAGAACTCACATTTTAACAACAGAGGACACATGCCCTACCTCCATGATCTACTGACGTCCCTGAGGCTGCAATACATGTAACGAGGCAGTATCCGCGGTAAGTCCTAGTGCAATGGCGGTTTTTTACCCTCGTCCTGGAGAAGAGGGGACGCCGGTGCAGTCATCACTAATGTGGAAATTGGGAGGACTCTTGGCCCTCCGCCTTTAGGCGGTGCTTACTCTTTCATAAAGGGGCTGTTAGTTATGGCCTGCGAGGATTCAAAAAGGTGAGCGAACTCGGCCGATCCGGAGAGACGGGCTTCAAAGCTGCCTGACGACGGTTGCGGGTCCGTATCAAAATCCTCCCAATAAGCCCCCGTGACCGTTGGTTGAACAGCCCAGGACGGGCCGACCAGAAGCCCGATTATATCGCTTAACGGCTCTTGGGCCGGGGTGCGTTACCTTGCAGGAATCGAGGCCGTCCGTTAATTCCTCTTGCATTCATATCGCGTATTTTTGTCTCTTTACCCGCTTACTTGGATAAGGATGACATAGCTTCTTACCGGAGCGCCTCCGTACACGGTACGATCGCACGCCCCGTGAGATCAATACGTATACCAGGTGTCCTGTGAGCAGCGAAAGCCTAAACGGGAAATACGCCGCCAAAAGTCGGTGTGAATACGAGTCGTAGCAAATTTGGTCTGGCTATGATCTAGATATTCCAGGCGGTACGTCTGCTCTGGTCTGCCTCTAGTGGCTCGTTAGATAGTCTAGCCGCTGGTAAACACTCCATGACCTCGGCTCTCCATTGATGCTACGGCGATTCTTGGAGAGCCAGCAGCGACTGCAAATGTGAGATCAGAGTAATATTAGCAAGCGATAAGTCCCTAACTGGTTGTGGCCTTTTGTAGAGTGAACTTCATAACATATGCTGTCTCAGGCACGTGGATGGTTTGGACAAATCAGATTCAAGTCT$'
-pattern = 'GTGT'
-fmIndex = FMINDEX()
-fmIndex.buildSuffixArray(SEQ)
-fmIndex.buildBWT(SEQ)
-fmIndex.buildCountTable()
-fmIndex.buildOccuranceTable()
-resArray = fmIndex.searchPattern(pattern)
-for i in resArray:
-	print("suffix matching " + pattern + " in " + SEQ[i:])
-'''
 

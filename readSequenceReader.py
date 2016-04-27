@@ -32,7 +32,7 @@ class ReadSequenceReader:
 	!!!!!!!!!!!!!!!!!!!!
 	'''	
 	@staticmethod	
-	def fetchReads(read_file,use_source_file_in_id = True):
+	def fetchReads(read_file,use_source_file_in_id = False):
 		print("read file", read_file)
 		reads = []
 

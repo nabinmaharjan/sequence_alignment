@@ -12,15 +12,15 @@ class GenomeSequenceReader:
 	'''
 	
 	@staticmethod
-	def getLocationsFromIndividualGenomes(gen_loc,read_results,GEN_DEL,SEQ_len):
+	def getLocationsFromIndividualGenomes(gen_loc,read_results,GEN_DEL_len,SEQ_len):
 		orig_gen_loc = []
 		for loc in read_results:
-			gen_id,loc = GenomeSequenceReader.getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL,SEQ_len)
+			gen_id,loc = GenomeSequenceReader.getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL_len,SEQ_len)
 			orig_gen_loc.append((gen_id,loc))
 		return orig_gen_loc
 
 	@staticmethod
-	def getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL,SEQ_len)	:
+	def getOriginalLocFromIndividualGenome(gen_loc,loc,GEN_DEL_len,SEQ_len)	:
 		gen_id="n/a"
 		loc_in_genome = -1
 		for gen in gen_loc.keys():
@@ -34,7 +34,7 @@ class GenomeSequenceReader:
 				if  gen_loc[gen][1] == SEQ_len:
 					main_genome_with_its_complement_len -= 1
 				else:
-					main_genome_with_its_complement_len -= GEN_DEL #subtract GEN_DEL
+					main_genome_with_its_complement_len -= GEN_DEL_len #subtract GEN_DEL_len
 
 				#now get the main_genome_len
 				main_genome_len = main_genome_with_its_complement_len//2

@@ -38,7 +38,10 @@ def main():
 
 	if buildFMIndex.lower()=="true":
 		print("building FMINDEX...")
+		start = time.clock()
 		fmIndex.buildFMIndex(SEQ)
+		end = time.clock()
+		print("time required to build fmIndex for {0} is {1} seconds".format(genome_folder,end-start))
 		fmIndex.saveFMIndex(index_file)
 	else:
 		print("loading FMINDEX...")
@@ -67,6 +70,6 @@ def main():
 				reads.extend(ReadSequenceReader.fetchReads(read_file))
 
 
-	fmIndex.performSingleReadSearch(reads,SEQ,gen_loc,GEN_DEL,readOut_file,isDebugMode)
+	fmIndex.performSingleReadSearch(reads,SEQ,gen_loc,len(GEN_DEL),readOut_file,isDebugMode)
 
 if __name__ == "__main__":main()
