@@ -84,7 +84,7 @@
   @r1.1|NC_014152.1-2076,NC_014152.1<br />
   @r3.1|NC_014152.1-3109,NA<br />
 
-  If read is not matched in any genome, it is assigned NA. For example read **@r11.1** in the above example output. <br/>
+  If read is not matched in any genome, it is assigned NA. For example read **@r1.1|NC_014152.1-2076** in the above example output. <br/>
 
   **Read Search output(Debug mode)** <br />
   each read has two lines for its ouput.<br />
@@ -96,7 +96,7 @@
   @r2.1|NC_014152.1-7149,ATATCTTTTCTTTTGTGAACAATATCCATACGCATGAAGGTGGGACTCATGAAGCAGGGTTTAAAACTGCGTTGACAAGGGTTGTCAATGATTATGCCCG,0,NA<br />
   <br />
    
-  In debug mode, if there is no match for the read, it is assigned NA and empty line is generated for location information. For exampe, read **@r91.2** in the debug output.<br/>
+  In debug mode, if there is no match for the read, it is assigned NA and empty line is generated for location information. For exampe, read **@r2.1|NC_014152.1-7149** in the debug output.<br/>
 
   Licensing
   ---------
