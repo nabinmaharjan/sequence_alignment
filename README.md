@@ -75,27 +75,25 @@
 
   Read File Format: fastq with .fq extenstion<br />
 
-   Output File Format
+   Output File Format (CSV)
   ---------
   **Read Search Output** <br />
-  each line is read_id|read_source_filename|reference genomes where read match occurs<br />
+  each line is read_id,reference genomes where read match occurs<br />
 
-  @r4.1|small_data2_1.fq|NC_022760.1<br />
-  @r9.1|small_data2_1.fq|NC_022760.1<br />
-  @r11.1|small_data2_1.fq|NA<br />
+  @r1.1|NC_014152.1-2076,NC_014152.1<br />
+  @r1.1|NC_014152.1-2076,NC_014152.1<br />
+  @r3.1|NC_014152.1-3109,NA<br />
 
   If read is not matched in any genome, it is assigned NA. For example read **@r11.1** in the above example output. <br/>
 
   **Read Search output(Debug mode)** <br />
   each read has two lines for its ouput.<br />
-  1st line is read_id|read_source_filename|read sequence|total read match|reference genomes where read match occurs<br />
+  1st line is read_id,read sequence,total read match,reference genomes where read match occurs<br />
   2nd line is list of genome_id:location pairs indicating read match occurrences<br />
 
-  @r24.1|small_data2_1.fq|ACAAAGGACTGAATAAAATT|1|NC_022760.1<br />
-  NC_022760.1:155545<br />
-  @r24.2|small_data2_1.fq|CACGGTTAAAATAAGTCAGG|2|NC_022760.1<br />
-  NC_022760.1_rev:99918 NC_022760.1_rev:113971<br />
-  @r91.2|GGTGCGGTGTGACTGATGAA|0|NA<br />
+  @r1.1|NC_014152.1-2076,GCTACAGCTGCTGATGAAAACAGGCCTATTTTTACAGGCGTGCTCTTTGAGGTAGAAGGCGATGAACTGCGTTTGGTGGCTACTGACACACACCGTCTGG,1,NC_014152.1<br />
+    NC_014152.1:2076<br />
+  @r2.1|NC_014152.1-7149,ATATCTTTTCTTTTGTGAACAATATCCATACGCATGAAGGTGGGACTCATGAAGCAGGGTTTAAAACTGCGTTGACAAGGGTTGTCAATGATTATGCCCG,0,NA<br />
   <br />
    
   In debug mode, if there is no match for the read, it is assigned NA and empty line is generated for location information. For exampe, read **@r91.2** in the debug output.<br/>

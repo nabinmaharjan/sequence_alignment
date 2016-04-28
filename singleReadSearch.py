@@ -6,6 +6,7 @@ from fmIndex import FMINDEX
 from genomeSequenceReader import GenomeSequenceReader
 from readSequenceReader import ReadSequenceReader
 import os
+import time
 
 '''
 python singleReadSearch.py <debug{true|false}>  <buildIndex{true|false}> <index_file> <genome_folder> <read_folder> <read_output_folder>

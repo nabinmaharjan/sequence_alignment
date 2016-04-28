@@ -137,7 +137,7 @@ class FMINDEX:
 		return resArray
 
 	def performSingleReadSearch(self,reads,SEQ,gen_loc,GEN_DEL_len,readOut_file,debug = False):
-		readOut_file = readOut_file + "_singleReadSearch.txt"
+		readOut_file = readOut_file + "_singleReadSearch.csv"
 		print("performing single read search with outfile: {0}".format(readOut_file))
 		st1 = time.clock()
 		with open(readOut_file,"w") as f:
@@ -197,12 +197,12 @@ class FMINDEX:
 	def getStringFormattedReadOutput(self,read_id,read,read_cnt,read_gen_list,locations,debug):
 		out_line = read_id
 		if debug:
-			out_line += "|{0}|{1}".format(read,read_cnt)
+			out_line += ",{0},{1}".format(read,read_cnt)
 		if len(read_gen_list) == 0:
 			read_gen_list = "NA"
 		else:
-			read_gen_list = "|".join(read_gen_list) 
-		out_line += "|" + read_gen_list + "\n"
+			read_gen_list = ",".join(read_gen_list) 
+		out_line += "," + read_gen_list + "\n"
 		if debug:
 			location_str = ''
 			for gene_id, loc_in_genome in locations:
@@ -212,7 +212,7 @@ class FMINDEX:
 
 
 	def performPairEndSearch(self,pairedReads,SEQ,gen_loc,GEN_DEL_len,readOut_file,debug = False,applyStrictMatching=False):
-		readOut_file = readOut_file + "_pairedEndReadSearch.txt"
+		readOut_file = readOut_file + "_pairedEndReadSearch.csv"
 		print("performing paired end read search with outfile: {0}".format(readOut_file))
 		st1 = time.clock()
 		with open(readOut_file,"w") as f:

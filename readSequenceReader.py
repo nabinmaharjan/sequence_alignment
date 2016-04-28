@@ -16,8 +16,8 @@ class ReadSequenceReader:
 		readPairList = []
 
 		for i in range(len(read1_list)):
-			#reverse the read2 seq so that both read1 and read2 will come from the same genome
-			reverse_read2_seq = GenomeSequenceReader.getComplementSequence(read2_list[i][1])
+			#reverse complement the read2 seq so that both read1 and read2 will come from the same genome
+			reverse_read2_seq = GenomeSequenceReader.getReverseComplementSequence(read2_list[i][1])
 			#print(read2_list[i][1],reverse_read2_seq)
 			readPairList.append((read1_list[i],(read2_list[i][0],reverse_read2_seq)))
 
@@ -53,7 +53,7 @@ class ReadSequenceReader:
 			lines = f.readlines()
 			for i in range(1,len(lines)+1):
 				if i%4==2:
-					read_id = lines[i-2].strip().split('|')[0]
+					read_id = lines[i-2].strip()#.split('|')[0]
 					if use_source_file_in_id:
 						read_id +=  "|" + read_source_filename
 					read_seq = lines[i-1].strip()
