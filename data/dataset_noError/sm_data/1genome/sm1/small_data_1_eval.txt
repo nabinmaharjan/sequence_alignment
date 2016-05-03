@@ -1,0 +1,11 @@
+Abundance file:  data\dataset_noError\sm_data\1genome\sm1\small_data_1.csv
+Result file:  data\dataset_noError\sm_data\1genome\sm1\small_data_1_out.csv
+Number of read in abundance file =  100
+
+
+Total reads =  100
+Total assignments =  100
+Correct assignments =  100
+Not Assigned =  0
+Presicion =  1.0
+Sensitivity =  1.0

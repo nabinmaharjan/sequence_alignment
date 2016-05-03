@@ -1,0 +1,10 @@
+genome_file NC_017150.fna
+building FMINDEX...
+building suffix Array...
+time required to build suffixArray for sequence length of 5630484 is 172807.82 seconds
+time required to build suffixArray with integer alphabet conversion for sequence length of 5630484 is 172808.85 seconds
+time required to build fmIndex for data/dataset_withError/sm_withError/reference is 172832.59 seconds
+read file data/dataset_withError/sm_withError/data1/data11.fq
+read file data/dataset_withError/sm_withError/data1/data12.fq
+performing paired end read search with outfile: data/dataset_withError/sm_withError/data1/read_output_strict_pairedEndReadSearch.csv
+time taken to perform pair end search with saving output: 3.8800000000046566

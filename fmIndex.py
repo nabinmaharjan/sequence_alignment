@@ -69,13 +69,14 @@ class FMINDEX:
 		#print(self.BWT)
 
 	def buildSuffixArray(self,SEQ):
-		#self.SA = SuffixArray.buildNaiveSA(SEQ)
 		print("building suffix Array...")
 		st1 = time.clock()
+		#self.SA = SuffixArray.buildNaiveSA(SEQ)
 		INT_SEQ  = SuffixArray.convertToIntegerAlphabetSequence(SEQ)
 		st2= time.clock()
 		self.SA = SuffixArray.buildLinearSA(INT_SEQ)
 		end = time.clock()
+		#print("time required to build suffixArray with python default sort for sequence length of {0} is {1} seconds".format(self.LEN,end-st1))
 		print("time required to build suffixArray for sequence length of {0} is {1} seconds".format(self.LEN,end-st2))
 		print("time required to build suffixArray with integer alphabet conversion for sequence length of {0} is {1} seconds".format(self.LEN,end-st1))
 		
