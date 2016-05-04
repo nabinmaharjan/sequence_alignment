@@ -19,3 +19,9 @@ R1_id|Gen_1|Gen_2|???
 
 5. Question: For pair-end read search, what if R1 matches in reference genome and R2 don't match??? discard the match for R1??
 
+6. For profiling:
+
+	#profiling using pyinstrument# 
+	->pip install pyintrument
+	->python -m pyinstrument pairEndReadSearch.py false true true fmIndex\profile_3gen.pkl data\dataset_noError\sm_data\3genomes\reference data\dataset_noError\sm_data\3genomes\sm_read1_3gen_noE data\dataset_noError\sm_data\3genomes\sm_read1_3gen_noE > log2.txt
+	

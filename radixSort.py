@@ -32,32 +32,68 @@ class RadixSort:
 		#print(random_list)
 		return random_list
 
-	@staticmethod
-	def radix_sortByCharacter(my_list,modulus):
-		random_list = [value for value in my_list]
-		for i in range(1,modulus+1):
-			bucket_map = {} # hash of buckets
-			for value in random_list:
-				offset = -i
-				#last_char = value[-i]
-				last_char = value[offset]
-				if last_char not in bucket_map:
-					bucket_map[last_char] = []
-				bucket_map[last_char].append(value)
+	
+	@staticmethod 
+	def radixPass(R,SEQ,alphabet_size):
 
-			#sort the bucket keys
-			bucket_keys = sorted(bucket_map)
-			#bucket_keys = RadixSort.radix_sort([ k for k in bucket_map.keys()])
-			
-			a = 0
-			for b in bucket_keys:
-				bucket = bucket_map[b]
-				for value in bucket:
-					random_list[a] = value
-					a += 1
-		#print(random_list)
-		return random_list
+		sorted_list = [0 for i in range(len(R))]
+
+		#count buckets for the alphabets
+		c = [0 for i in range(alphabet_size+1)] # including padding 0 alphabet
+
+		#count occurrences of the alphabet
+		for i in range(len(R)):
+			c[SEQ[R[i]]] += 1
+
+		sum = 0
+		for i in range(alphabet_size+1)	:
+			temp = c[i]
+			c[i] = sum
+			sum += temp
+
+		#sort
+		for i in range(len(R)):
+			sorted_list[c[SEQ[R[i]]]] = R[i]
+			c[SEQ[R[i]]] += 1
+
+		#delete c	
+		c = []
+		return sorted_list
+
+	@staticmethod
+	def radixSortTriples(R,SEQ,alphabet_size):
+		#In 1st pass, sort R by the end character in the R triples
+		sorted_R =RadixSort.radixPass(R,SEQ[2:],alphabet_size)
+
+		#In 2nd pass, sort R by the end character in the R triples
+		sorted_R =RadixSort.radixPass(sorted_R,SEQ[1:],alphabet_size)
+
+		#In 3rd pass, sort R by the end character in the R triples
+		sorted_R =RadixSort.radixPass(sorted_R,SEQ,alphabet_size)
+
+		return sorted_R	
+
+	@staticmethod
+	def getRankForSortedR(originalList,sortedList,SEQ):
+		#ranked the sorted list from 1 to ...
+		rank_map = {}
+		rank = 0
+		for i in range(len(sortedList)):
+			triple_index = sortedList[i]
+			value = tuple(SEQ[triple_index:triple_index+3])
+			if  value not in rank_map:
+				rank += 1
+				rank_map[value] = rank
+		#print(rank_map) 
 		
+		distinctRank = len(sortedList) == len(rank_map)
+		#now rank the original list passed to the method
+		ranks = []
+		for triple_index in originalList:
+			value = tuple(SEQ[triple_index:triple_index+3])
+			ranks.append(rank_map[value])      
+		return ranks,distinctRank
+
 	@staticmethod
 	def radix_sortPairedList(pairedList):
 		random_list = [value for value in pairedList]
@@ -70,7 +106,8 @@ class RadixSort:
 				bucket_map[bucket].append(value)
 			#sort the bucket keys
 			#bucket_keys = sorted(bucket_map)
-			bucket_keys = RadixSort.radix_sort([ k for k in bucket_map.keys()])
+			keys = [ k for k in bucket_map.keys()]
+			bucket_keys = RadixSort.radix_sort(keys)
 			#print("bucket keys",bucket_keys)
 			a = 0
 			for b in bucket_keys:
@@ -81,28 +118,7 @@ class RadixSort:
 			#print(random_list)
 		return random_list
 	
-	@staticmethod
-	def radix_sortIntegerString(intList,num_of_tuple_pos):
-		random_list = [value for value in intList]
-		for tuple_pos in range(1,num_of_tuple_pos+1):
-			bucket_map = {}
-			for value in random_list:
-				bucket = value[-tuple_pos]
-				if bucket not in bucket_map:
-					bucket_map[bucket] = []
-				bucket_map[bucket].append(value)
-			#sort the bucket keys
-			#bucket_keys = sorted(bucket_map)
-			bucket_keys = RadixSort.radix_sort([ k for k in bucket_map.keys()])
-			#print("bucket keys",bucket_keys)
-			a = 0
-			for b in bucket_keys:
-				bucket = bucket_map[b]
-				for value in bucket:
-					random_list[a] = value
-					a += 1
-			#print(random_list)
-		return random_list
+	
 
 
 	@staticmethod
@@ -147,15 +163,4 @@ print(sortedList)
 print(int_list)
 print(rank_map)'''
 
-
-'''
-#pairedList = [(5,1),(1, 0),(0, 5), (3, 7),(4, 2)]
-pairedList = [[1,5,1],[1,1, 0],[0,0, 5], [6,3, 7],[4,4, 2]]
-print(pairedList)
-sortedList = RadixSort.radix_sortIntegerString(pairedList,3)
-print(sortedList)
-rank_map, areRankDistincts = RadixSort.getRankForSortedList(pairedList,sortedList)
-print(rank_map)
-#print(sortedList)
-'''
 
